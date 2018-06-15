@@ -1,7 +1,6 @@
 ﻿using DataAccessLibrary.Models;
 using DataModel.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Angular4Core2.Controllers
 {
