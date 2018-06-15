@@ -1,26 +1,24 @@
-﻿import { Component, OnInit } from '@angular/core';
-import { Contact } from '../../_models/index';
-import { ContactService } from '../../_services/index';
-import { ToastrService } from 'toastr-ng2';
+﻿import { Component, OnInit, Inject } from '@angular/core';
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { elementAt } from 'rxjs/operator/elementAt';
+//import { ToastrService } from 'toastr-ng2';
 import { InputTextModule, DataTableModule, ButtonModule, DialogModule } from 'primeng/primeng';
 
 @Component({
     selector: 'contact',
-    templateUrl: './contact.component.html'
+    templateUrl: './contact.component.html',
 })
 export class ContactComponent implements OnInit {
 
-    private rowData: any[];
-    displayDialog: boolean;
-    displayDeleteDialog: boolean;
-    newContact: boolean;
-    contact: Contact = new Contact();
-    contacts: Contact[];
+    public listContact: Contact[];
+    public contact: Contact;
+    isDisplayAddEditDialog: boolean;
+    isDisplayDeleteDialog: boolean;
+    public isNewContact: boolean;
     public editContactId: any;
     public fullname: string;
 
-    constructor(private contactService: ContactService, private toastrService: ToastrService) {
-
+    constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string) {
     }
 
     ngOnInit() {
@@ -29,65 +27,78 @@ export class ContactComponent implements OnInit {
     }
 
     loadData() {
-        this.contactService.getContacts()
-            .subscribe(res => {
-                this.rowData = res.result;
-            });
+        this.http.get(this.baseUrl + 'Contact/GetContacts').subscribe(result => {
+            this.listContact = <any>(<Response>result).json().result;
+        }, error => console.error(error));
     }
 
     showDialogToAdd() {
-        this.newContact = true;
+        this.isNewContact = true;
         this.editContactId = 0;
         this.contact = new Contact();
-        this.displayDialog = true;
+        this.isDisplayAddEditDialog = true;
     }
 
-
     showDialogToEdit(contact: Contact) {
-        this.newContact = false;
-        this.contact = new Contact();
-        this.contact.contactId = contact.contactId;
-        this.contact.firstName = contact.firstName;
-        this.contact.lastName = contact.lastName;
-        this.contact.email = contact.email;
-        this.contact.phone = contact.phone;
-        this.displayDialog = true;
+        this.isNewContact = false;
+        this.contact = {
+            contactId: contact.contactId,
+            firstName: contact.firstName,
+            lastName: contact.lastName,
+            email: contact.email,
+            phone: contact.phone
+        };
+        this.isDisplayAddEditDialog = true;
     }
 
     onRowSelect(event: any) {
     }
 
-    save() {
-        this.contactService.saveContact(this.contact)
-            .subscribe(response => {
-                this.contact.contactId > 0 ? this.toastrService.success('Data updated Successfully') :
-                    this.toastrService.success('Data inserted Successfully');
+    okSave() {
+        let body = JSON.stringify(this.contact);
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers });
+        this.http.post(this.baseUrl + 'Contact/SaveContact', body, options).subscribe(result => {
+            if (result.json()) {
+                if (this.isNewContact) {
+                    alert("Add successfully");
+                } else {
+                    alert("Edit successfully");
+                }
                 this.loadData();
-            });
-        this.displayDialog = false;
+            }
+        }, error => console.error(error));
+        this.isDisplayAddEditDialog = false;
     }
 
-    cancel() {
+    cancelSave() {
         this.contact = new Contact();
-        this.displayDialog = false;
+        this.isDisplayAddEditDialog = false;
     }
-
 
     showDialogToDelete(contact: Contact) {
         this.fullname = contact.firstName + ' ' + contact.lastName;
         this.editContactId = contact.contactId;
-        this.displayDeleteDialog = true;
+        this.isDisplayDeleteDialog = true;
     }
 
     okDelete(isDeleteConfirm: boolean) {
         if (isDeleteConfirm) {
-            this.contactService.deleteContact(this.editContactId)
-                .subscribe(response => {
-                    this.editContactId = 0;
+            this.http.delete(this.baseUrl + 'Contact/DeleteContactByID/' + this.editContactId).subscribe(result => {
+                if (result.json()) {
+                    alert("Delete successfully");
                     this.loadData();
-                });
-            this.toastrService.error('Data Deleted Successfully');
+                }
+            }, error => console.error(error));
         }
-        this.displayDeleteDialog = false;
+        this.isDisplayDeleteDialog = false;
     }
+}
+
+class Contact {
+    public contactId: any;
+    public firstName: any;
+    public lastName: any;
+    public email: any;
+    public phone: any;
 }

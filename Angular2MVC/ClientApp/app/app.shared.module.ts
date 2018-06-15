@@ -4,30 +4,29 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
+import { InputTextModule, DataTableModule, ButtonModule, DialogModule } from 'primeng/primeng';
+//import { ToastrModule } from 'toastr-ng2';
+
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
-import { HomeComponent } from './components/home/home.component';
-import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
-import { CounterComponent } from './components/counter/counter.component';
+import { ContactComponent } from './components/contact/contact.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         NavMenuComponent,
-        CounterComponent,
-        FetchDataComponent,
-        HomeComponent
+        ContactComponent,
     ],
     imports: [
         CommonModule,
         HttpModule,
         FormsModule,
+        //ToastrModule.forRoot(),
+        InputTextModule, DataTableModule, ButtonModule, DialogModule,
         RouterModule.forRoot([
-            { path: '', redirectTo: 'home', pathMatch: 'full' },
-            { path: 'home', component: HomeComponent },
-            { path: 'counter', component: CounterComponent },
-            { path: 'fetch-data', component: FetchDataComponent },
-            { path: '**', redirectTo: 'home' }
+            { path: '', redirectTo: 'contact', pathMatch: 'full' },
+            { path: 'contact', component: ContactComponent },
+            { path: '**', redirectTo: 'contact' }
         ])
     ]
 })
