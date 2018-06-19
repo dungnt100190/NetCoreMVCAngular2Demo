@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Angular4Core2
+namespace AngularMVC
 {
     public class Startup
     {
